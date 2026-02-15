@@ -1,0 +1,102 @@
+import { Phase, Milestone } from "@/types";
+
+export const phases: Phase[] = [
+  {
+    id: "phase-0",
+    name: "Phase 0",
+    phaseNum: 0,
+    status: "not-started",
+    description: "开发平台搭建",
+    startDate: "2026-02-16",
+    endDate: "2026-03-01",
+    progress: 0,
+    activities: [
+      "GitHub 仓库创建、项目目录结构初始化",
+      "Docker 开发环境搭建（Odoo 17 + PostgreSQL 16 + Redis 7）",
+      "Cursor Rules 编写（6 个规则文件）",
+      "工程化配置（Makefile、Pre-commit、GitHub Actions）",
+      "模块脚手架验证（创建并安装测试模块）",
+    ],
+    deliverables: [
+      "docker-compose.yml + 配置文件",
+      ".cursor/rules/ 6 个规则文件",
+      "Makefile 常用命令",
+      ".github/workflows/ CI 配置",
+      "测试模块（安装成功 + 测试通过）",
+    ],
+  },
+  {
+    id: "phase-1",
+    name: "Phase 1",
+    phaseNum: 1,
+    status: "not-started",
+    description: "基础平台 + 需求分析",
+    startDate: "2026-03-02",
+    endDate: "2026-03-22",
+    progress: 0,
+    activities: [
+      "erp_base 模块开发（组织架构、权限、审计、系统配置）",
+      "采购/销售/库存/财务的需求分析和 Gap-Fit",
+      "核心业务流程 BPMN 建模",
+      "数据模型设计",
+    ],
+    deliverables: [
+      "custom_addons/erp_base/ 模块",
+      "需求清单（4 大模块）",
+      "Gap-Fit 分析报告",
+      "核心业务流程图",
+    ],
+  },
+  {
+    id: "phase-2",
+    name: "Phase 2",
+    phaseNum: 2,
+    status: "not-started",
+    description: "核心业务模块开发",
+    startDate: "2026-03-23",
+    endDate: "2026-05-17",
+    progress: 0,
+    activities: [
+      "Sprint 1: erp_purchase + erp_sale",
+      "Sprint 2: erp_stock + erp_account",
+      "Sprint 3: erp_report + 模块联调",
+    ],
+    deliverables: [
+      "4 大核心业务模块",
+      "erp_report 报表中心",
+      "端到端业务流程验证",
+      "全模块测试报告",
+    ],
+  },
+  {
+    id: "phase-3",
+    name: "Phase 3",
+    phaseNum: 3,
+    status: "not-started",
+    description: "集成测试 + 上线",
+    startDate: "2026-05-18",
+    endDate: "2026-06-14",
+    progress: 0,
+    activities: [
+      "erp_integration 模块开发",
+      "外部服务部署（FastAPI 集成服务）",
+      "端到端集成测试 + UAT 验收",
+      "数据迁移 + 生产环境部署",
+    ],
+    deliverables: [
+      "erp_integration 模块",
+      "外部服务（API 网关 + 集成 + 通知）",
+      "UAT 测试报告",
+      "生产环境部署 + 运维手册",
+    ],
+  },
+];
+
+export const milestones: Milestone[] = [
+  { id: "m0", phaseId: "phase-0", name: "环境就绪", code: "M0", status: "not-started", targetDate: "2026-03-01" },
+  { id: "m1", phaseId: "phase-1", name: "基础上线", code: "M1", status: "not-started", targetDate: "2026-03-22" },
+  { id: "m2", phaseId: "phase-2", name: "采购销售上线", code: "M2", status: "not-started", targetDate: "2026-04-12" },
+  { id: "m3", phaseId: "phase-2", name: "库存财务上线", code: "M3", status: "not-started", targetDate: "2026-05-03" },
+  { id: "m4", phaseId: "phase-3", name: "集成上线", code: "M4", status: "not-started", targetDate: "2026-06-07" },
+  { id: "m5", phaseId: "phase-3", name: "全量上线", code: "M5", status: "not-started", targetDate: "2026-06-14" },
+];

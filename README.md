@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ERP 方法论管理平台
 
-## Getting Started
+ERP 项目方法论可视化管理平台，将 Markdown 文档体系转化为可交互的 Web 应用。
 
-First, run the development server:
+## 功能
+
+- **仪表盘** — 项目概览、方法论状态、里程碑进度
+- **方法论浏览器** — 树形导航 + Markdown 渲染 + 在线编辑 + 版本历史
+- **项目路线图** — Phase 0~3 时间线、活动、交付物、里程碑
+- **质量门禁** — 可交互的检查清单，阶段门禁和 Sprint 门禁
+- **文档管理** — 搜索、浏览、查看所有方法论文档
+- **对话记录** — 时间线视图，关键决策追踪
+
+## 技术栈
+
+- **Next.js 15** (App Router, TypeScript)
+- **Tailwind CSS** + **shadcn/ui**
+- **Recharts** — 仪表盘图表
+- **react-markdown** — Markdown 渲染
+- **Vercel** — 部署
+
+## 开发
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+访问 http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 部署
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+推送到 GitHub 后在 Vercel 中导入即可自动部署。
 
-## Learn More
+## 与 ERP 项目的关系
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+本项目是 ERP 主项目（`erp/`）的配套管理工具：
+- 数据来源于 ERP 项目的 `docs/` 目录
+- 后续将接入 Supabase 实现持久化和多人协作

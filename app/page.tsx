@@ -1,65 +1,193 @@
-import Image from "next/image";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { getDocStats, phases, milestones, chatlogEntries } from "@/lib/data";
+import { StatusChart } from "@/components/charts/status-chart";
+import { GitBranch, Map, ShieldCheck, MessageSquare, Clock, CheckCircle2, FileText, AlertCircle } from "lucide-react";
+import Link from "next/link";
 
-export default function Home() {
+export default function DashboardPage() {
+  const stats = getDocStats();
+  const currentPhase = phases.find((p) => p.status === "in-progress") || phases[0];
+  const completedGates = 0; // TODO: compute from state
+  const totalGatesPhase0 = 7;
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <div className="space-y-6">
+      {/* Overview Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              当前阶段
+            </CardTitle>
+            <Map className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{currentPhase.name}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {currentPhase.description}
+            </p>
+            <Progress value={currentPhase.progress} className="mt-3 h-2" />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              方法论文档
+            </CardTitle>
+            <GitBranch className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.total}</div>
+            <div className="flex items-center gap-2 mt-1">
+              <Badge variant="default" className="text-[10px] bg-green-600">{stats.confirmed} 已确认</Badge>
+              <Badge variant="secondary" className="text-[10px]">{stats.skeleton} 骨架</Badge>
+              <Badge variant="outline" className="text-[10px]">{stats.placeholder} 占位</Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Phase 0 门禁
+            </CardTitle>
+            <ShieldCheck className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{completedGates}/{totalGatesPhase0}</div>
+            <p className="text-xs text-muted-foreground mt-1">检查项通过</p>
+            <Progress value={(completedGates / totalGatesPhase0) * 100} className="mt-3 h-2" />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              对话记录
+            </CardTitle>
+            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{chatlogEntries.length}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              最近: {chatlogEntries[chatlogEntries.length - 1]?.title}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Charts and Timeline Row */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Status Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">方法论文档状态</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <StatusChart
+              confirmed={stats.confirmed}
+              skeleton={stats.skeleton}
+              placeholder={stats.placeholder}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+          </CardContent>
+        </Card>
+
+        {/* Milestones */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">里程碑进度</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {milestones.map((ms) => (
+                <div key={ms.id} className="flex items-center gap-3">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-muted text-xs font-bold text-muted-foreground">
+                    {ms.code}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{ms.name}</p>
+                    <p className="text-xs text-muted-foreground">{ms.targetDate}</p>
+                  </div>
+                  <Badge
+                    variant={ms.status === "completed" ? "default" : "outline"}
+                    className="text-[10px] shrink-0"
+                  >
+                    {ms.status === "completed" ? "完成" : ms.status === "in-progress" ? "进行中" : "未开始"}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Recent Activity */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">最近活动</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {chatlogEntries.slice(-5).reverse().map((entry) => (
+                <div key={entry.id} className="flex gap-3">
+                  <div className="mt-0.5">
+                    {entry.statusTag === "completed" ? (
+                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    ) : entry.statusTag === "in-progress" ? (
+                      <Clock className="h-4 w-4 text-yellow-500" />
+                    ) : (
+                      <AlertCircle className="h-4 w-4 text-red-500" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{entry.title}</p>
+                    <p className="text-xs text-muted-foreground">{entry.chatTime}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Quick Links */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Link href="/methodology">
+          <Card className="hover:border-primary/50 transition-colors cursor-pointer">
+            <CardContent className="flex items-center gap-4 pt-6">
+              <GitBranch className="h-8 w-8 text-primary" />
+              <div>
+                <p className="font-semibold">方法论浏览器</p>
+                <p className="text-sm text-muted-foreground">浏览 7 大方法论域和 {stats.total} 个文档</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/roadmap">
+          <Card className="hover:border-primary/50 transition-colors cursor-pointer">
+            <CardContent className="flex items-center gap-4 pt-6">
+              <Map className="h-8 w-8 text-primary" />
+              <div>
+                <p className="font-semibold">项目路线图</p>
+                <p className="text-sm text-muted-foreground">Phase 0~3 时间线和里程碑</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/quality">
+          <Card className="hover:border-primary/50 transition-colors cursor-pointer">
+            <CardContent className="flex items-center gap-4 pt-6">
+              <ShieldCheck className="h-8 w-8 text-primary" />
+              <div>
+                <p className="font-semibold">质量门禁</p>
+                <p className="text-sm text-muted-foreground">阶段门禁检查和 Sprint 完成条件</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+      </div>
     </div>
   );
 }
