@@ -1,16 +1,26 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { getDocStats, phases, milestones, chatlogEntries } from "@/lib/data";
+import { getDocStats, getPhases, getMilestones, getChatlogEntries, getQualityGates } from "@/lib/supabase/queries";
 import { StatusChart } from "@/components/charts/status-chart";
-import { GitBranch, Map, ShieldCheck, MessageSquare, Clock, CheckCircle2, FileText, AlertCircle } from "lucide-react";
+import { GitBranch, Map, ShieldCheck, MessageSquare, Clock, CheckCircle2, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
-export default function DashboardPage() {
-  const stats = getDocStats();
-  const currentPhase = phases.find((p) => p.status === "in-progress") || phases[0];
-  const completedGates = 0; // TODO: compute from state
-  const totalGatesPhase0 = 7;
+export const dynamic = "force-dynamic";
+
+export default async function DashboardPage() {
+  const [stats, phases, milestones, chatlog, gates] = await Promise.all([
+    getDocStats(),
+    getPhases(),
+    getMilestones(),
+    getChatlogEntries(),
+    getQualityGates(),
+  ]);
+
+  const currentPhase = phases.find((p: any) => p.status === "in-progress") || phases[0];
+  const phase0Gates = gates.filter((g: any) => g.phase_transition === "Phase 0 → Phase 1");
+  const completedGates = phase0Gates.filter((g: any) => g.is_passed).length;
+  const totalGatesPhase0 = phase0Gates.length;
 
   return (
     <div className="space-y-6">
@@ -18,25 +28,19 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              当前阶段
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">当前阶段</CardTitle>
             <Map className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{currentPhase.name}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {currentPhase.description}
-            </p>
-            <Progress value={currentPhase.progress} className="mt-3 h-2" />
+            <div className="text-2xl font-bold">{currentPhase?.name}</div>
+            <p className="text-xs text-muted-foreground mt-1">{currentPhase?.description}</p>
+            <Progress value={currentPhase?.progress ?? 0} className="mt-3 h-2" />
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              方法论文档
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">方法论文档</CardTitle>
             <GitBranch className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -51,70 +55,51 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Phase 0 门禁
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Phase 0 门禁</CardTitle>
             <ShieldCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{completedGates}/{totalGatesPhase0}</div>
             <p className="text-xs text-muted-foreground mt-1">检查项通过</p>
-            <Progress value={(completedGates / totalGatesPhase0) * 100} className="mt-3 h-2" />
+            <Progress value={totalGatesPhase0 > 0 ? (completedGates / totalGatesPhase0) * 100 : 0} className="mt-3 h-2" />
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              对话记录
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">对话记录</CardTitle>
             <MessageSquare className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{chatlogEntries.length}</div>
+            <div className="text-2xl font-bold">{chatlog.length}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              最近: {chatlogEntries[chatlogEntries.length - 1]?.title}
+              最近: {chatlog[chatlog.length - 1]?.title}
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Charts and Timeline Row */}
+      {/* Charts Row */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Status Chart */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base">方法论文档状态</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle className="text-base">方法论文档状态</CardTitle></CardHeader>
           <CardContent>
-            <StatusChart
-              confirmed={stats.confirmed}
-              skeleton={stats.skeleton}
-              placeholder={stats.placeholder}
-            />
+            <StatusChart confirmed={stats.confirmed} skeleton={stats.skeleton} placeholder={stats.placeholder} />
           </CardContent>
         </Card>
 
-        {/* Milestones */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base">里程碑进度</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle className="text-base">里程碑进度</CardTitle></CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {milestones.map((ms) => (
+              {milestones.map((ms: any) => (
                 <div key={ms.id} className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-muted text-xs font-bold text-muted-foreground">
-                    {ms.code}
-                  </div>
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-muted text-xs font-bold text-muted-foreground">{ms.code}</div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{ms.name}</p>
-                    <p className="text-xs text-muted-foreground">{ms.targetDate}</p>
+                    <p className="text-xs text-muted-foreground">{ms.target_date}</p>
                   </div>
-                  <Badge
-                    variant={ms.status === "completed" ? "default" : "outline"}
-                    className="text-[10px] shrink-0"
-                  >
+                  <Badge variant={ms.status === "completed" ? "default" : "outline"} className="text-[10px] shrink-0">
                     {ms.status === "completed" ? "完成" : ms.status === "in-progress" ? "进行中" : "未开始"}
                   </Badge>
                 </div>
@@ -123,19 +108,16 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Recent Activity */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base">最近活动</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle className="text-base">最近活动</CardTitle></CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {chatlogEntries.slice(-5).reverse().map((entry) => (
+              {chatlog.slice(-5).reverse().map((entry: any) => (
                 <div key={entry.id} className="flex gap-3">
                   <div className="mt-0.5">
-                    {entry.statusTag === "completed" ? (
+                    {entry.status_tag === "completed" ? (
                       <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    ) : entry.statusTag === "in-progress" ? (
+                    ) : entry.status_tag === "in-progress" ? (
                       <Clock className="h-4 w-4 text-yellow-500" />
                     ) : (
                       <AlertCircle className="h-4 w-4 text-red-500" />
@@ -143,7 +125,7 @@ export default function DashboardPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{entry.title}</p>
-                    <p className="text-xs text-muted-foreground">{entry.chatTime}</p>
+                    <p className="text-xs text-muted-foreground">{new Date(entry.chat_time).toLocaleString("zh-CN")}</p>
                   </div>
                 </div>
               ))}

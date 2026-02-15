@@ -23,7 +23,7 @@ export default function SettingsPage() {
           </div>
           <div className="flex justify-between items-center text-sm">
             <span className="text-muted-foreground">数据源</span>
-            <Badge variant="secondary">本地数据</Badge>
+            <Badge variant="default" className="bg-green-600">Supabase PostgreSQL</Badge>
           </div>
         </CardContent>
       </Card>
@@ -36,7 +36,7 @@ export default function SettingsPage() {
           <div className="flex flex-wrap gap-2">
             {[
               "Next.js 15", "TypeScript", "Tailwind CSS", "shadcn/ui",
-              "Recharts", "react-markdown", "Vercel",
+              "Supabase", "Recharts", "react-markdown", "Vercel",
             ].map((tech) => (
               <Badge key={tech} variant="outline">{tech}</Badge>
             ))}
@@ -49,9 +49,9 @@ export default function SettingsPage() {
           <CardTitle className="text-base">后续计划</CardTitle>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground space-y-2">
-          <p>- 接入 Supabase 数据库，支持持久化存储和版本管理</p>
-          <p>- 添加 Markdown 在线编辑器</p>
-          <p>- 添加用户认证和多人协作</p>
+          <p>- ✅ Supabase 数据库已接入（持久化存储 + 版本管理）</p>
+          <p>- ✅ Markdown 在线编辑器已实现</p>
+          <p>- ✅ 用户认证已接入（Supabase Auth）</p>
           <p>- 接入 ERP 项目数据（Sprint 进度、缺陷统计）</p>
         </CardContent>
       </Card>

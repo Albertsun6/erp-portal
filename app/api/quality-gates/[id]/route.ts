@@ -1,0 +1,28 @@
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { is_passed } = await request.json();
+
+  const { error } = await supabase
+    .from("quality_gates")
+    .update({
+      is_passed,
+      checked_by: is_passed ? user.id : null,
+      checked_at: is_passed ? new Date().toISOString() : null,
+    })
+    .eq("id", id);
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  return NextResponse.json({ ok: true });
+}
